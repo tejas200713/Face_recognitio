@@ -9,7 +9,7 @@ from tkinter import messagebox, ttk, Toplevel, Scrollbar, Frame
 #import openpyxl
 
 # Directory containing known face images
-known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
+known_faces_dir = r"images"
 
 def load_known_faces(directory):
     known_faces = []
