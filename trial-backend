@@ -1,0 +1,87 @@
+from flask import Flask, jsonify, request, render_template
+import cv2
+import face_recognition
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import os
+
+app = Flask(__name__)
+
+# Directory containing known face images
+known_faces_dir = r"images"
+
+# Load known faces and names
+def load_known_faces(directory):
+    known_faces = []
+    known_names = []
+    for filename in os.listdir(directory):
+        if filename.endswith(('.jpg', '.png')):
+            image = face_recognition.load_image_file(os.path.join(directory, filename))
+            encodings = face_recognition.face_encodings(image)
+            if encodings:
+                known_faces.append(encodings[0])
+                known_names.append(filename.split('.')[0])
+    return np.array(known_faces), known_names
+
+known_faces, known_names = load_known_faces(known_faces_dir)
+
+@app.route('/')
+def index():
+    return render_template('index.html')  # HTML Frontend
+
+@app.route('/capture_image', methods=['POST'])
+def capture_image():
+    cam = cv2.VideoCapture(0)
+    ret, frame = cam.read()
+    cam.release()
+    cv2.destroyAllWindows()
+    if not ret:
+        return jsonify({'error': 'Failed to capture image'}), 500
+    
+    cv2.imwrite('captured_image.jpg', frame)
+    return jsonify({'message': 'Image captured successfully'}), 200
+
+@app.route('/recognize_face', methods=['POST'])
+def recognize_face_route():
+    image = face_recognition.load_image_file('captured_image.jpg')
+    face_encodings = face_recognition.face_encodings(image)
+    
+    if not face_encodings:
+        return jsonify({'message': 'No faces detected in the image.'}), 400
+    
+    captured_encoding = face_encodings[0]
+    matches = face_recognition.compare_faces(known_faces, captured_encoding)
+    
+    if True in matches:
+        first_match_index = matches.index(True)
+        student_name = known_names[first_match_index]
+        mark_attendance(student_name)
+        return jsonify({'message': f'Attendance marked for {student_name}'}), 200
+    
+    return jsonify({'message': 'Student not recognized!'}), 400
+
+def mark_attendance(student_name, file='attendance.xlsx'):
+    now = datetime.now()
+    current_date = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M:%S")
+    try:
+        df = pd.read_excel(file)
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["Name", "Date", "Time"])
+    
+    new_record_df = pd.DataFrame({"Name": [student_name], "Date": [current_date], "Time": [current_time]})
+    df = pd.concat([df, new_record_df], ignore_index=True)
+    df.to_excel(file, index=False)
+
+@app.route('/view_records', methods=['GET'])
+def view_records():
+    try:
+        df = pd.read_excel('attendance.xlsx')
+        records = df.to_dict(orient='records')
+        return jsonify(records), 200
+    except FileNotFoundError:
+        return jsonify({'message': 'No records found'}), 404
+
+if __name__ == "__main__":
+    app.run(debug=True)
