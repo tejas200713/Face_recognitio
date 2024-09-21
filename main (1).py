@@ -4,50 +4,38 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import os
+import tkinter as tk
+from tkinter import messagebox, ttk
 
 # Directory containing known face images
 known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
 
-# Load known faces
-known_faces = []
-known_names = []
-for filename in os.listdir(known_faces_dir):
-    if filename.endswith('.jpg') or filename.endswith('.png'):
-        print(f"{known_faces_dir}\\{filename}")
-        image = face_recognition.load_image_file(f"{known_faces_dir}\\{filename}")
-        print(image)
-        encoding = face_recognition.face_encodings(image)
-        known_faces.append(encoding)
-        known_names.append(filename.split('.')[0])
+def load_known_faces(directory):
+    known_faces = []
+    known_names = []
+    for filename in os.listdir(directory):
+        if filename.endswith(('.jpg', '.png')):
+            image = face_recognition.load_image_file(os.path.join(directory, filename))
+            encodings = face_recognition.face_encodings(image)
+            if encodings:
+                known_faces.append(encodings[0])
+                known_names.append(filename.split('.')[0])
+    return np.array(known_faces), known_names
 
-# Function to capture image
 def capture_image():
     cam = cv2.VideoCapture(0)
-    while True:
-        ret, frame = cam.read()
-        if not ret:
-            print("Failed to grab frame")
-            break
-        cv2.imshow('Press Space to capture', frame)
-        if cv2.waitKey(1) & 0xFF == ord(' '):
-            break
+    if not cam.isOpened():
+        messagebox.showerror("Error", "Camera could not be opened.")
+        return None
+    ret, frame = cam.read()
     cam.release()
     cv2.destroyAllWindows()
     return frame if ret else None
 
-
-# Example arrays
-known_faces = np.array([]).reshape(1, 0)  # An empty array
-capture_encoding = np.random.rand(128)  # A 1D array of 128 elements
-
-# Handling the empty case
-if known_faces.size == 0:
-    known_faces = np.zeros((1, 128)) 
-# Function to recognize face
-def recognize_face(captured_image):
+def recognize_face(captured_image, known_faces, known_names):
     face_encodings = face_recognition.face_encodings(captured_image)
-    if len(face_encodings) == 0:
-        print("No faces detected in the image.")
+    if not face_encodings:
+        messagebox.showinfo("Info", "No faces detected in the image.")
         return None
     captured_encoding = face_encodings[0]
     matches = face_recognition.compare_faces(known_faces, captured_encoding)
@@ -56,7 +44,6 @@ def recognize_face(captured_image):
         return known_names[first_match_index]
     return None
 
-# Function to mark attendance
 def mark_attendance(student_name, file='attendance.xlsx'):
     now = datetime.now()
     current_date = now.strftime("%Y-%m-%d")
@@ -69,19 +56,42 @@ def mark_attendance(student_name, file='attendance.xlsx'):
     df = pd.concat([df, new_record_df], ignore_index=True)
     df.to_excel(file, index=False)
 
-# Main execution
-def main():
+def run_attendance_system():
+    known_faces, known_names = load_known_faces(known_faces_dir)
+    if known_faces.size == 0:
+        messagebox.showerror("Error", "No known faces found.")
+        return
+    
     image = capture_image()
     if image is None:
         return
-    print(image)
-    student_name = recognize_face(image)
+
+    student_name = recognize_face(image, known_faces, known_names)
     if student_name is None:
-        print("Student not recognized!")
+        messagebox.showinfo("Info", "Student not recognized!")
         return
     mark_attendance(student_name)
-    print(f"Attendance marked for {student_name}")
+    messagebox.showinfo("Success", f"Attendance marked for {student_name}")
 
-if __name__ == "__main__":
-    
-    main()
+# Set up the GUI
+root = tk.Tk()
+root.title("Face Recognition Attendance System")
+root.geometry("400x200")
+root.configure(bg="#f0f0f0")
+
+# Style Configuration
+style = ttk.Style()
+style.configure("TButton", font=("Helvetica", 14), padding=10)
+style.configure("TLabel", background="#f0f0f0", font=("Helvetica", 12))
+style.configure("TFrame", background="#f0f0f0")
+
+# Title Label
+title_label = ttk.Label(root, text="Attendance System", font=("Helvetica", 16, "bold"))
+title_label.pack(pady=20)
+
+# Start Button
+start_button = ttk.Button(root, text="Start Attendance", command=run_attendance_system)
+start_button.pack(pady=20)
+
+# Run the main loop
+root.mainloop()
