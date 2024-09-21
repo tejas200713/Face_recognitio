@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import tkinter as tk
 from tkinter import messagebox, ttk, Toplevel, Scrollbar, Frame
-#import openpyxl
 
 # Directory containing known face images
 known_faces_dir = r"images"
@@ -57,6 +56,13 @@ def mark_attendance(student_name, file='attendance.xlsx'):
     df = pd.concat([df, new_record_df], ignore_index=True)
     df.to_excel(file, index=False)
 
+def reset_attendance(file='attendance.xlsx'):
+    if os.path.exists(file):
+        os.remove(file)
+        messagebox.showinfo("Success", "Attendance records have been reset.")
+    else:
+        messagebox.showinfo("Info", "No attendance records found to reset.")
+
 def show_attendance_records():
     records_window = Toplevel(root)
     records_window.title("Attendance Records")
@@ -103,7 +109,7 @@ def run_attendance_system():
 # Set up the GUI
 root = tk.Tk()
 root.title("Face Recognition Attendance System")
-root.geometry("400x200")
+root.geometry("400x300")
 root.configure(bg="#f0f0f0")
 
 # Style Configuration
@@ -123,6 +129,10 @@ start_button.pack(pady=10)
 # View Records Button
 view_records_button = ttk.Button(root, text="View Attendance Records", command=show_attendance_records)
 view_records_button.pack(pady=10)
+
+# Reset Attendance Button
+reset_button = ttk.Button(root, text="Reset Attendance", command=lambda: reset_attendance())
+reset_button.pack(pady=10)
 
 # Exit Button
 exit_button = ttk.Button(root, text="Exit", command=root.quit)
