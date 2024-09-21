@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; }
+        .container { text-align: center; margin-top: 50px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<h1>Face Recognition Attendance System</h1>
+<div class="container">
+    <button onclick="captureImage()">Capture Image</button>
+    <button onclick="startRecognition()">Start Recognition</button>
+    <button onclick="viewRecords()">View Attendance Records</button>
+</div>
+
+<script>
+    function captureImage() {
+        fetch('/capture_image', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+    }
+
+    function startRecognition() {
+        fetch('/recognize_face', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+    }
+
+    function viewRecords() {
+        fetch('/view_records')
+            .then(response => response.json())
+            .then(data => {
+                let records = data.map(record => `${record.Name} - ${record.Date} - ${record.Time}`).join('\n');
+                alert(records);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>
