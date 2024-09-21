@@ -33,22 +33,6 @@ def capture_image():
     cv2.destroyAllWindows()
     return frame if ret else None
 
-def main():
-    image = capture_image()
-    if image is None:
-        return
-    # Convert BGR (OpenCV) to RGB (face_recognition)
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    print(image_rgb)
-    print('aaaaaa')
-    student_name = recognize_face(image_rgb)
-    if student_name is None:
-        print("Student not recognized!")
-        return
-    mark_attendance(student_name)
-    print(f"Attendance marked for {student_name}")
-
-
 # Function to recognize face
 def recognize_face(captured_image):
     face_encodings = face_recognition.face_encodings(captured_image)
@@ -76,7 +60,7 @@ def mark_attendance(student_name, file='attendance.xlsx'):
     df.to_excel(file, index=False)
 
 # Main execution
-'''def main():
+def main():
     image = capture_image()
     if image is None:
         return
@@ -87,7 +71,7 @@ def mark_attendance(student_name, file='attendance.xlsx'):
         print("Student not recognized!")
         return
     mark_attendance(student_name)
-    print(f"Attendance marked for {student_name}")'''
+    print(f"Attendance marked for {student_name}")
 
 if __name__ == "__main__":
     print("AJKDFJKDJFKDJFK")
