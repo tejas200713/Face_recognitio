@@ -1,6 +1,7 @@
 import cv2
 import face_recognition
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import os
 
@@ -34,6 +35,14 @@ def capture_image():
     cv2.destroyAllWindows()
     return frame if ret else None
 
+
+# Example arrays
+known_faces = np.array([]).reshape(1, 0)  # An empty array
+capture_encoding = np.random.rand(128)  # A 1D array of 128 elements
+
+# Handling the empty case
+if known_faces.size == 0:
+    known_faces = np.zeros((1, 128)) 
 # Function to recognize face
 def recognize_face(captured_image):
     face_encodings = face_recognition.face_encodings(captured_image)
@@ -66,7 +75,6 @@ def main():
     if image is None:
         return
     print(image)
-    print("AAAAA")
     student_name = recognize_face(image)
     if student_name is None:
         print("Student not recognized!")
