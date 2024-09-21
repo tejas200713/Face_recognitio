@@ -14,7 +14,8 @@ for filename in os.listdir(known_faces_dir):
     if filename.endswith('.jpg') or filename.endswith('.png'):
         print(f"{known_faces_dir}\\{filename}")
         image = face_recognition.load_image_file(f"{known_faces_dir}\\{filename}")
-        encoding = face_recognition.face_encodings(image)[0]
+        print(image)
+        encoding = face_recognition.face_encodings(image)
         known_faces.append(encoding)
         known_names.append(filename.split('.')[0])
 
@@ -74,5 +75,5 @@ def main():
     print(f"Attendance marked for {student_name}")
 
 if __name__ == "__main__":
-    print("AJKDFJKDJFKDJFK")
+    
     main()
