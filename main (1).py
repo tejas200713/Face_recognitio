@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 import tkinter as tk
 from tkinter import messagebox, ttk, Toplevel, Scrollbar, Frame
+#import openpyxl
 
 # Directory containing known face images
 known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
