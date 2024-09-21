@@ -5,7 +5,7 @@ import numpy as np
 from datetime import datetime
 import os
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 # Directory containing known face images
 known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
@@ -76,9 +76,23 @@ def run_attendance_system():
 # Set up the GUI
 root = tk.Tk()
 root.title("Face Recognition Attendance System")
-root.geometry("300x150")
+root.geometry("400x200")
+root.configure(bg="#f0f0f0")
 
-start_button = tk.Button(root, text="Start Attendance", command=run_attendance_system)
-start_button.pack(pady=50)
+# Style Configuration
+style = ttk.Style()
+style.configure("TButton", font=("Helvetica", 14), padding=10)
+style.configure("TLabel", background="#f0f0f0", font=("Helvetica", 12))
+style.configure("TFrame", background="#f0f0f0")
 
+# Title Label
+title_label = ttk.Label(root, text="Attendance System", font=("Helvetica", 16, "bold"))
+title_label.pack(pady=20)
+
+# Start Button
+start_button = ttk.Button(root, text="Start Attendance", command=run_attendance_system)
+start_button.pack(pady=20)
+
+# Run the main loop
 root.mainloop()
+
