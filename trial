@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import tkinter as tk
 from tkinter import messagebox, ttk, Toplevel
-from PIL import Image, ImageTk
 
 # Directory containing known face images
 known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
@@ -69,14 +68,6 @@ def show_attendance_records():
     except FileNotFoundError:
         ttk.Label(records_window, text="No attendance records found.").pack()
 
-def reset_attendance():
-    if messagebox.askyesno("Confirm", "Are you sure you want to reset attendance records?"):
-        try:
-            os.remove('attendance.xlsx')
-            messagebox.showinfo("Success", "Attendance records have been reset.")
-        except FileNotFoundError:
-            messagebox.showinfo("Info", "No records to reset.")
-
 def run_attendance_system():
     known_faces, known_names = load_known_faces(known_faces_dir)
     if known_faces.size == 0:
@@ -86,9 +77,6 @@ def run_attendance_system():
     image = capture_image()
     if image is None:
         return
-    
-    # Show captured image
-    show_captured_image(image)
 
     student_name = recognize_face(image, known_faces, known_names)
     if student_name is None:
@@ -97,24 +85,10 @@ def run_attendance_system():
     mark_attendance(student_name)
     messagebox.showinfo("Success", f"Attendance marked for {student_name}")
 
-def show_captured_image(image):
-    img_window = Toplevel(root)
-    img_window.title("Captured Image")
-    
-    # Convert image from BGR to RGB format
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    img = Image.fromarray(image)
-    img = img.resize((400, 300), Image.ANTIALIAS)
-    img_tk = ImageTk.PhotoImage(img)
-
-    img_label = ttk.Label(img_window, image=img_tk)
-    img_label.image = img_tk  # Keep a reference to avoid garbage collection
-    img_label.pack()
-
 # Set up the GUI
 root = tk.Tk()
 root.title("Face Recognition Attendance System")
-root.geometry("400x300")
+root.geometry("400x200")
 root.configure(bg="#f0f0f0")
 
 # Style Configuration
@@ -134,10 +108,6 @@ start_button.pack(pady=10)
 # View Records Button
 view_records_button = ttk.Button(root, text="View Attendance Records", command=show_attendance_records)
 view_records_button.pack(pady=10)
-
-# Reset Attendance Button
-reset_button = ttk.Button(root, text="Reset Attendance", command=reset_attendance)
-reset_button.pack(pady=10)
 
 # Exit Button
 exit_button = ttk.Button(root, text="Exit", command=root.quit)
