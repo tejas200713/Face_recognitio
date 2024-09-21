@@ -3,48 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance System</title>
+    <title>Face Recognition Attendance System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <style>
-        body { font-family: Arial, sans-serif; }
-        h1 { text-align: center; }
-        .container { text-align: center; margin-top: 50px; }
-        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #343a40;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .btn {
+            width: 200px;
+            margin: 10px;
+        }
+
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
     </style>
 </head>
 <body>
 
-<h1>Face Recognition Attendance System</h1>
-<div class="container">
-    <button onclick="captureImage()">Capture Image</button>
-    <button onclick="startRecognition()">Start Recognition</button>
-    <button onclick="viewRecords()">View Attendance Records</button>
-</div>
+    <div class="container">
+        <h1>Face Recognition Attendance System</h1>
 
-<script>
-    function captureImage() {
-        fetch('/capture_image', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => console.error('Error:', error));
-    }
+        <!-- Capture Image Button -->
+        <button type="button" class="btn btn-primary" onclick="captureImage()">Capture Image</button>
 
-    function startRecognition() {
-        fetch('/recognize_face', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => console.error('Error:', error));
-    }
+        <!-- Start Recognition Button -->
+        <button type="button" class="btn btn-success" onclick="startRecognition()">Start Recognition</button>
 
-    function viewRecords() {
-        fetch('/view_records')
-            .then(response => response.json())
-            .then(data => {
-                let records = data.map(record => `${record.Name} - ${record.Date} - ${record.Time}`).join('\n');
-                alert(records);
-            })
-            .catch(error => console.error('Error:', error));
-    }
-</script>
+        <!-- View Attendance Records Button -->
+        <button type="button" class="btn btn-info" onclick="viewRecords()">View Attendance Records</button>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Attendance System | Developed by [Your Name]</p>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (Optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function captureImage() {
+            fetch('/capture_image', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function startRecognition() {
+            fetch('/recognize_face', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function viewRecords() {
+            fetch('/view_records')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        let records = data.map(record => `${record.Name} - ${record.Date} - ${record.Time}`).join('\n');
+                        alert(records);
+                    } else {
+                        alert('No attendance records found.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 
 </body>
 </html>
