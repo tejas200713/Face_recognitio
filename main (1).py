@@ -5,7 +5,7 @@ import numpy as np
 from datetime import datetime
 import os
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, Toplevel, Scrollbar, Frame
 
 # Directory containing known face images
 known_faces_dir = r"C:\\Users\\tejas\\Pictures\\Camera Roll"
@@ -56,6 +56,32 @@ def mark_attendance(student_name, file='attendance.xlsx'):
     df = pd.concat([df, new_record_df], ignore_index=True)
     df.to_excel(file, index=False)
 
+def show_attendance_records():
+    records_window = Toplevel(root)
+    records_window.title("Attendance Records")
+    records_window.geometry("400x300")
+    
+    frame = Frame(records_window)
+    frame.pack(fill=tk.BOTH, expand=True)
+
+    # Create a scrollbar
+    scrollbar = Scrollbar(frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Create a canvas for the attendance records
+    records_list = tk.Listbox(frame, yscrollcommand=scrollbar.set, font=("Helvetica", 12))
+    records_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    
+    scrollbar.config(command=records_list.yview)
+
+    # Load attendance records
+    try:
+        df = pd.read_excel('attendance.xlsx')
+        for index, row in df.iterrows():
+            records_list.insert(tk.END, f"{row['Name']} - {row['Date']} - {row['Time']}")
+    except FileNotFoundError:
+        records_list.insert(tk.END, "No attendance records found.")
+
 def run_attendance_system():
     known_faces, known_names = load_known_faces(known_faces_dir)
     if known_faces.size == 0:
@@ -91,7 +117,15 @@ title_label.pack(pady=20)
 
 # Start Button
 start_button = ttk.Button(root, text="Start Attendance", command=run_attendance_system)
-start_button.pack(pady=20)
+start_button.pack(pady=10)
+
+# View Records Button
+view_records_button = ttk.Button(root, text="View Attendance Records", command=show_attendance_records)
+view_records_button.pack(pady=10)
+
+# Exit Button
+exit_button = ttk.Button(root, text="Exit", command=root.quit)
+exit_button.pack(pady=10)
 
 # Run the main loop
 root.mainloop()
